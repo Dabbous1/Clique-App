@@ -23,17 +23,8 @@ Route::group(['middleware' => ['verify.embedded', 'verify.shopify']], function (
         $user = Auth::user();
         $response = $user->api()->rest('get', '/admin/api/2023-04/webhooks.json', []);
 
-        return Inertia::render('EmbeddedApp', compact('response'));
+        return Inertia::render('Dashboard', compact('response'));
     })->name('home');
-
-    //EMBEDDED LINKS
-});
-
-Route::group(['middleware' => ['auth', 'verified']], function () {
-
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -42,7 +33,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
     Route::delete('/table', [ProfileController::class, 'table'])->name('ic_logs.list');
 
-    //NON EMBEDDED LINKS
 });
 
 require __DIR__ . '/auth.php';
+
