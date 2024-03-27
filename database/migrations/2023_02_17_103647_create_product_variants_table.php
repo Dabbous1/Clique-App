@@ -16,10 +16,8 @@ return new class extends Migration
     {
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger("local_product_id");
-            $table->string("product_id")->index();
-            $table->string("variant_id")->index();
+            $table->unsignedBigInteger("product_id");
+            $table->string("shopify_id")->index();
             $table->string("title");
             $table->string("option1")->nullable();
             $table->string("option2")->nullable();

@@ -63,21 +63,11 @@ class ProductsDeleteJob implements ShouldQueue
     public function handle(IShopCommand $shopCommand, IShopQuery $shopQuery, CancelCurrentPlan $cancelCurrentPlanAction): bool
     {
         $this->domain = ShopDomain::fromNative($this->domain);
-
         $shop = $shopQuery->getByDomain($this->domain);
         $shopId = $shop->getId();
-
-        // sync_products($shop);
-
         $deletion_object = $this->data;
-
-        // Log::info(json_encode("delete product job"));
-        // Log::info(json_encode($shop));
-
         Product::where('product_id', $deletion_object->id)->delete();
-        CollectionProduct::where('product_id', $deletion_object->id)->delete();
         ProductVariant::where('product_id', $deletion_object->id)->delete();
-
         return true;
     }
 }

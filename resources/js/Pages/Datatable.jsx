@@ -11,22 +11,21 @@ import {
     TextContainer,
     useIndexResourceState, useSetIndexFiltersMode
 } from '@shopify/polaris';
-
-// import { colourOptions } from 'data';
-
+import queryString from 'query-string';
 import { router, usePage } from '@inertiajs/react';
-import { ArrowLeftIcon, SettingsFilledIcon } from "@shopify/polaris-icons";
+import { ArrowLeftIcon, ReceiptDollarFilledIcon, RefreshIcon, SettingsFilledIcon } from "@shopify/polaris-icons";
 import { useCallback, useEffect, useRef, useState } from 'react';
-function LogsTable({ filter }) {
-
+import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
+import { CalendarViewMonthSharp, Sync } from '@mui/icons-material';
+function LogsTable({ filter, pricingParameter, products }) {
     const page = usePage().props;
+    const { query } = page.ziggy;
     let timeout = null;
-
     const resourceName = {
         singular: 'log',
         plural: 'logs',
     };
-
     const pageOptions = [
         { label: '5', value: '5' },
         { label: '10', value: '10' },
@@ -34,58 +33,42 @@ function LogsTable({ filter }) {
         { label: '50', value: '50' },
         { label: '100', value: '100' },
     ];
-
-    const [pageCount, setPageCount] = useState("10");
-
-    const [tableRows, setTableRows] = useState([
-        // name, code, brand, category,subcategory, unitcost
-        {
-            id: '',
-            name: '',
-            code: '',
-            brand: '',
-            category: '',
-            subcategory: '',
-            qty: <b style={{ fontWeight: '900', fontSize: '14px' }}>500</b>,
-            unitcost: '30.00 EUR',
-            unitcostUSD: <b style={{ fontWeight: '900', fontSize: '14px' }}>1000.00 EUR</b>,
-            unitcostEGP: <b style={{ fontWeight: '900', fontSize: '14px' }}>1000.00 EGP</b>,
-            costofKGUSD: <b style={{ fontWeight: '900', fontSize: '14px' }}>25.56 USD</b>,
-            costofgmUSD: <b style={{ fontWeight: '900', fontSize: '14px' }}>0.03 USD</b>,
-            unitweightGR: <b style={{ fontWeight: '900', fontSize: '14px' }}>185 gm</b>,
-            unitcostIncludingweightUSD: <b style={{ fontWeight: '900', fontSize: '14px' }}>9.41 USD</b>,
-            unitcostIncludingweightEGP: <b style={{ fontWeight: '900', fontSize: '14px' }}>9.41 EGP</b>,
-            grossmargin: '45%',
-            finalprice: <b style={{ fontWeight: '900', fontSize: '14px' }}>132,000.00 EGP</b>,
-        },
-        {
-            id: '2',
-            name: 'Kelvin',
-            code: '424435',
-            brand: 'CK Uwear',
-            category: 'Clothing',
-            subcategory: 'UWear',
-            qty: '500',
-            unitcost: '30.00 EUR',
-            unitcostUSD: '40 USD',
-            unitcostEGP: '300 EGP',
-            costofKGUSD: '25.56 USD',
-            costofgmUSD: '0.03 USD',
-            unitweightGR: '185 gm',
-            unitcostIncludingweightUSD: '9.41 USD',
-            unitcostIncludingweightEGP: '486.88 EGP',
-            grossmargin: '45%',
-            finalprice: '720.50 EGP',
-        }
-    ]);
-
+    const [pageCount, setPageCount] = useState();
+    const [tableRows, setTableRows] = useState([]);
+    const formatCurrency = (amount, currency) => (
+        <b style={{ fontWeight: '900', fontSize: '14px' }}>{parseFloat(amount).toFixed(2)} {currency}</b>
+    );
+    const showStatus = (status) => <b style={{ fontWeight: '900', fontSize: '14px', color: status === 'active' ? 'green' : 'red'}}>{status}</b>;
+    const mapProductToTableRow = (product, pricingParameter) => ({
+        id: product.id,
+        name: product.name,
+        code: product.code,
+        brand: product.brand,
+        category: product.category,
+        subcategory: product.sub_category,
+        qty: product.qty,
+        unitcost: formatCurrency(product.unit_cost_eur, 'EUR'),
+        unitcostUSD: formatCurrency(product.unit_cost_usd, 'USD'),
+        unitcostEGP: formatCurrency(product.unit_cost_egp, 'EGP'),
+        costofKGUSD: formatCurrency(pricingParameter.cost_of_kg, 'USD'),
+        costofgmUSD: formatCurrency(product.cost_of_gram_usd, 'USD'),
+        unitweightGR: formatCurrency(product.unit_weight_gram, 'gm'),
+        unitcostIncludingweightUSD: formatCurrency(product.unit_cost_with_weight_cost_usd, 'USD'),
+        unitcostIncludingweightEGP: formatCurrency(product.unit_cost_with_weight_cost_egp, 'EGP'),
+        grossmargin: formatCurrency(pricingParameter.gross_margin , '%'),
+        finalprice: formatCurrency(product.final_price_egp, 'EGP'),
+        status: showStatus(product.status)
+    });
+    useEffect(() => {
+        const mappedRows = products.map((product) => mapProductToTableRow(product, pricingParameter));
+        setTableRows(mappedRows);
+    }, [products, pricingParameter]);
     const [selected, setSelected] = useState(0);
     const [itemStrings, setItemStrings] = useState([
         'All',
-        'Name',
-        'Code',
-        'Brand',
-        'Category',
+        'New',
+        'Active',
+        'Draft',
     ]);
     const tabs = itemStrings.map((item, index) => ({
         content: item,
@@ -95,17 +78,14 @@ function LogsTable({ filter }) {
         isLocked: index === 0,
         actions: []
     }));
-
     const sortOptions = [
         { label: 'Id', value: 'id asc', directionLabel: 'Ascending' },
         { label: 'Id', value: 'id desc', directionLabel: 'Descending' },
     ];
-
     const [sortSelected, setSortSelected] = useState(['id desc']);
     const [queryValue, setQueryValue] = useState("");
     const { mode, setMode } = useSetIndexFiltersMode();
     const onHandleCancel = () => { };
-
     const [pagination, setPagination] = useState({
         path: route("ic_logs.list"),
         next_cursor: null,
@@ -119,29 +99,22 @@ function LogsTable({ filter }) {
     const [reload, setReload] = useState(false);
     const { selectedResources, allResourcesSelected, handleSelectionChange } = useIndexResourceState(tableRows);
     const handlePageCount = useCallback((value) => { setPageCount(value); setCurrentCursor(null); setReload(!reload); }, [tableRows]);
-
     useEffect(() => {
-
         let url = new URL(pagination.path);
-
         url.searchParams.set('page_count', pageCount);
-
         if (currentCursor) {
             url.searchParams.set('cursor', currentCursor);
         }
-
         if (sortSelected != "") {
             url.searchParams.set('sort', sortSelected[0])
         } else {
             url.searchParams.delete('sort');
         }
-
         if (queryValue != '') {
             url.searchParams.set('q', queryValue);
         } else {
             url.searchParams.delete('q');
         }
-
         setMyUrl(url);
         url = url.toString();
         setLoading(true)
@@ -185,11 +158,9 @@ function LogsTable({ filter }) {
             });
 
     }, [reload])
-
     useEffect(() => {
         setReload(!reload);
     }, [selected, sortSelected]);
-
     const handleFiltersQueryChange = useCallback(
         (value) => {
             setQueryValue(value)
@@ -201,25 +172,20 @@ function LogsTable({ filter }) {
         },
         [tableRows]
     );
-
     const handleQueryValueRemove = useCallback(() => { setQueryValue(""); setCurrentCursor(null); setReload(!reload); }, [tableRows]);
-
     const handleFiltersClearAll = useCallback(() => {
         handleQueryValueRemove();
     }, [
         handleQueryValueRemove
     ]);
-
     const filters = [];
-
     const appliedFilters = [];
-
-    const rowMarkup = tableRows.map(({ id, name, code, brand, category, subcategory, qty, unitcost, unitcostUSD, unitcostEGP, costofKGUSD, costofgmUSD, unitweightGR, unitcostIncludingweightUSD, unitcostIncludingweightEGP, grossmargin, finalprice },) => (
+    const rowMarkup = tableRows.map(({ id, name, code, status, brand, category, subcategory, qty, unitcost, unitcostUSD, unitcostEGP, costofKGUSD, costofgmUSD, unitweightGR, unitcostIncludingweightUSD, unitcostIncludingweightEGP, grossmargin, finalprice },) => (
         <IndexTable.Row id={id} key={id}>
-
             <IndexTable.Cell>{id}</IndexTable.Cell>
             <IndexTable.Cell>{name}</IndexTable.Cell>
             <IndexTable.Cell>{code}</IndexTable.Cell>
+            <IndexTable.Cell>{status}</IndexTable.Cell>
             <IndexTable.Cell>{brand}</IndexTable.Cell>
             <IndexTable.Cell>{category}</IndexTable.Cell>
             <IndexTable.Cell>{subcategory}</IndexTable.Cell>
@@ -237,68 +203,75 @@ function LogsTable({ filter }) {
         </IndexTable.Row>
     ));
     const [active, setActive] = useState(false);
-
     const [firstRun, setFirstRun] = useState(true);
     useEffect(() => {
-
         if (!firstRun) {
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
         }
         setFirstRun(false);
-
     }, [selected])
-
-
     // Modal popup
     const [activemodal, setActivemodal] = useState(false);
-
     const buttonRef = useRef(null);
-
     const handleOpenmodal = useCallback(() => setActivemodal(true), []);
-
     const handleClosemodal = useCallback(() => {
         setActivemodal(false);
     }, []);
-
-    const activator = (''
-        //   <div ref={buttonRef}>
-        //     <Button onClick={handleOpenmodal}>Open</Button>
-        //   </div>
-    );
-    // Modal popup
-
-
-
     // Modal data
-    const [textFieldValuecostkg, setTextFieldValuecostkg] = useState('0.00');
+    const [textFieldValuecostkg, setTextFieldValuecostkg] = useState(pricingParameter.cost_of_kg);
     const handleTextFieldChangecostkg = useCallback(
         (valuecostkg) => setTextFieldValuecostkg(valuecostkg),
         [],
     );
-
+    const handleFormSubmit = async() => {
+        const data = {
+            cost_of_kg: textFieldValuecostkg,
+            gross_margin: textFieldValuegrossmargin,
+            bm_egp_markup: textFieldValueblackmarket
+        };
+        console.log(data)
+        let response = await fetch(route('submit-pricing', query), {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+        response = await response.json();
+        // if (response.success) {
+        //     Swal.fire({
+        //         title: 'Success!',
+        //         icon: 'success',
+        //         text: response.message,
+        //         showConfirmButton: false,
+        //         timer: 1500
+        //     });
+        // }
+    }
     // second Gross Margin
-    const [textFieldValuegrossmargin, setTextFieldValuegrossmargin] = useState('0');
+    const [textFieldValuegrossmargin, setTextFieldValuegrossmargin] = useState(pricingParameter.gross_margin);
     const handleTextFieldChangegrossmargin = useCallback(
         (valuegrossmargin) => setTextFieldValuegrossmargin(valuegrossmargin),
         [],
     );
     // Third
-    const [textFieldValueblackmarket, setTextFieldValueblackmarket] = useState('0.00');
+    const [textFieldValueblackmarket, setTextFieldValueblackmarket] = useState(pricingParameter.bm_egp_markup);
     const handleTextFieldChangeblackmarket = useCallback(
         (valueblackmarket) => setTextFieldValueblackmarket(valueblackmarket),
         [],
     );
-
     // Modal data
     //
-
     return (
         <div>
             <Grid>
                 <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 12, lg: 12, xl: 12 }}>
-                    <div style={{ display: "flex", justifyContent: 'space-between' }}>
-                        <div style={{ display: "flex" }}>
+                    <div style={{ display: "flex", justifyContent: 'end' }}>
+                        <div style={{ display: "flex", marginRight: '1rem' }}>
+                            <Button className="session-token" icon={RefreshIcon}>
+                                Sync
+                            </Button>
                         </div>
                         <div className='orders-cc-in-printsave' style={{ display: "flex" }}>
                             <Select
@@ -348,6 +321,7 @@ function LogsTable({ filter }) {
                                 { title: 'id' },
                                 { title: 'Name' },
                                 { title: 'Code' },
+                                { title: 'status' },
                                 { title: 'Brand' },
                                 { title: 'Category' },
                                 { title: 'Subcategory' },
@@ -416,7 +390,7 @@ function LogsTable({ filter }) {
                 title={<Text variant="headingLg" as="h5">Pricing App Settings</Text>}
                 primaryAction={{
                     content: 'Done',
-                    onAction: handleClosemodal,
+                    onAction: handleFormSubmit,
                 }}
                 secondaryActions={[
                     {
@@ -459,7 +433,6 @@ function LogsTable({ filter }) {
                                     value={textFieldValueblackmarket}
                                     onChange={handleTextFieldChangeblackmarket}
                                     prefix="E£"
-                                    suffix="%"
                                     autoComplete="off"
                                 />
                             </Grid.Cell>

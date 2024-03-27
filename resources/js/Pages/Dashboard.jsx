@@ -4,10 +4,10 @@ import { Box, Button } from '@mui/material';
 import LogsTable from './Datatable';
 import './Style.css';
 
-export default function Dashboard({ auth }) {
+export default function Dashboard({ auth, pricingParameter, products, user }) {
     return (
         <AuthenticatedLayout
-            user={auth.user}
+            user={user}
         >
             <Head title="Dashboard" />
 
@@ -17,7 +17,7 @@ export default function Dashboard({ auth }) {
                         <div className="p-6 text-gray-900 dark:text-gray-100">
 
                         <Box m={3} mt={0}>
-                        <LogsTable />
+                            <LogsTable pricingParameter={pricingParameter} products={products} />
                         </Box>
                         </div>
 

@@ -24,7 +24,9 @@
         "@emotion/styled": "^11.11.0",
         "@mui/icons-material": "^5.15.2",
         "@mui/material": "^5.15.2",
+        "@shopify/app-bridge-react": "^4.1.2",
         "@shopify/polaris": "latest",
-        "@shopify/polaris-icons": "latest"
+        "@shopify/polaris-icons": "latest",
+        "query-string": "^9.0.0"
     }
 }
