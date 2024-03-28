@@ -16,14 +16,21 @@ return new class extends Migration
     {
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger("product_id");
-            $table->string("shopify_id")->index();
-            $table->string("title");
-            $table->string("option1")->nullable();
-            $table->string("option2")->nullable();
-            $table->string("option3")->nullable();
-            $table->string("price");
-            $table->string("quantity");
+            $table->unsignedBigInteger("product_id")->nullable();
+            $table->unsignedBigInteger("shopify_id")->nullable();
+            $table->string('code')->nullable();
+            $table->integer("position")->nullable();
+            $table->decimal("weight")->nullable();
+            $table->decimal('unit_cost_eur')->nullable();
+            $table->decimal('unit_cost_usd')->nullable();
+            $table->decimal('unit_cost_egp')->nullable();
+            $table->decimal('cost_of_gram_usd')->nullable();
+            $table->decimal('unit_weight_gram')->nullable();
+            $table->decimal('unit_cost_with_weight_cost_usd')->nullable();
+            $table->decimal('unit_cost_with_weight_cost_egp')->nullable();
+            $table->decimal("final_price_egp")->nullable();
+            $table->decimal('original_price')->nullable();
+            $table->integer("qty")->nullable();
             $table->timestamps();
         });
     }

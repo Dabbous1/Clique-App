@@ -10,10 +10,24 @@ class ProductVariant extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'local_product_id', 'product_id', 'variant_id', 'title', 'price', 'option1', 'option2', 'option3', 'quantity'
+        'weight',
+        'original_price',
+        'product_id',
+        'final_price_egp',
+        'shopify_id',
+        'code',
+        'position',
+        'qty',
+        'unit_cost_eur',
+        'unit_cost_usd',
+        'unit_cost_egp',
+        'cost_of_gram_usd',
+        'unit_weight_gram',
+        'unit_cost_with_weight_cost_usd',
+        'unit_cost_with_weight_cost_egp',
     ];
 
     public function product(){
-        return $this->belongsTo(Product::class,"local_product_id","id");
+        return $this->belongsTo(Product::class);
     }
 }

@@ -43,9 +43,11 @@ Route::group(['middleware' => ['verify.embedded', 'verify.shopify']], function (
 
     Route::get('/', [DashboardController::class, 'index'])->name('home');
     Route::post('submit-pricing', [DashboardController::class, 'submitPricing'])->name('submit-pricing');
+    Route::get('sync-produccts' , [DashboardController::class, 'syncProducts'])->name('sync-produccts');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/fetch-products-list', [DashboardController::class, 'productsList'])->name('products.list');
 
 
     Route::delete('/table', [ProfileController::class, 'table'])->name('ic_logs.list');

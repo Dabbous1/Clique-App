@@ -3,8 +3,10 @@ import { Head } from '@inertiajs/react';
 import { Box, Button } from '@mui/material';
 import LogsTable from './Datatable';
 import './Style.css';
+import { useEffect } from 'react';
 
-export default function Dashboard({ auth, pricingParameter, products, user }) {
+export default function Dashboard({ auth, user, pricingParameter, filter }) {
+
     return (
         <AuthenticatedLayout
             user={user}
@@ -17,7 +19,8 @@ export default function Dashboard({ auth, pricingParameter, products, user }) {
                         <div className="p-6 text-gray-900 dark:text-gray-100">
 
                         <Box m={3} mt={0}>
-                            <LogsTable pricingParameter={pricingParameter} products={products} />
+                            <LogsTable pricingParameter={pricingParameter} filter={filter} />
+
                         </Box>
                         </div>
 

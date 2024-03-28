@@ -27,6 +27,7 @@
         "@shopify/app-bridge-react": "^4.1.2",
         "@shopify/polaris": "latest",
         "@shopify/polaris-icons": "latest",
-        "query-string": "^9.0.0"
+        "query-string": "^9.0.0",
+        "react-hot-toast": "^2.4.1"
     }
 }

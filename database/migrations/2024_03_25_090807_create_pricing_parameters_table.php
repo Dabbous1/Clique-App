@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('pricing_parameters', function (Blueprint $table) {
             $table->id();
-            $table->decimal('cost_of_kg');
-            $table->decimal('gross_margin');
-            $table->decimal('bm_egp_markup');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->decimal('cost_of_kg')->nullable();
+            $table->decimal('gross_margin')->nullable();
+            $table->decimal('bm_egp_markup')->nullable();
             $table->timestamps();
         });
     }

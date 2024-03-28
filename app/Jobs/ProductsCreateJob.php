@@ -2,22 +2,23 @@
 
 namespace App\Jobs;
 
-use App\Http\Traits\ShopifyProductTrait;
+use stdClass;
+use App\Models\User;
 use App\Models\Product;
 use App\Models\ProductImage;
-use App\Models\ProductVariant;
-use App\Models\User;
 use Illuminate\Bus\Queueable;
+use App\Models\ProductVariant;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Queue\SerializesModels;
+use App\Http\Traits\ShopifyProductTrait;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
-use Osiset\ShopifyApp\Objects\Values\ShopDomain;
-use stdClass;
-use Osiset\ShopifyApp\Contracts\Commands\Shop as IShopCommand;
-use Osiset\ShopifyApp\Contracts\Queries\Shop as IShopQuery;
 use Osiset\ShopifyApp\Actions\CancelCurrentPlan;
+use Osiset\ShopifyApp\Objects\Values\ShopDomain;
+use Osiset\ShopifyApp\Contracts\Queries\Shop as IShopQuery;
+use Osiset\ShopifyApp\Contracts\Commands\Shop as IShopCommand;
 
 class ProductsCreateJob implements ShouldQueue
 {
@@ -64,11 +65,18 @@ class ProductsCreateJob implements ShouldQueue
      */
     public function handle(IShopCommand $shopCommand, IShopQuery $shopQuery, CancelCurrentPlan $cancelCurrentPlanAction): bool
     {
+        $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=EUR&symbols=USD');
+        $rates = $rates->json();
+        $usdRate = $rates['rates']['USD'];
+        $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=EUR&symbols=EGP');
+        $rates = $rates->json();
+        $eurRate = 1 / $usdRate;
+        $egpRate = $eurRate * $rates['rates']['EGP'];
         $this->domain = ShopDomain::fromNative($this->domain);
         $shop = $shopQuery->getByDomain($this->domain);
         $payload = $this->data;
         $user = User::where('name', $shop->name)->first();
-        $this->syncWithDatabase($user, $payload);
+        $this->storeWithDatabase($user, $payload, $usdRate, $egpRate);
         return true;
     }
 }

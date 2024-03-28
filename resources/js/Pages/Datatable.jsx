@@ -9,7 +9,8 @@ import {
     Pagination, Select, Tag,
     Text,
     TextContainer,
-    useIndexResourceState, useSetIndexFiltersMode
+    useIndexResourceState, useSetIndexFiltersMode,
+    Frame
 } from '@shopify/polaris';
 import queryString from 'query-string';
 import { router, usePage } from '@inertiajs/react';
@@ -18,13 +19,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import { CalendarViewMonthSharp, Sync } from '@mui/icons-material';
-function LogsTable({ filter, pricingParameter, products }) {
+import toast, { Toaster } from 'react-hot-toast';
+function LogsTable({ filter , pricingParameter}) {
     const page = usePage().props;
     const { query } = page.ziggy;
     let timeout = null;
     const resourceName = {
-        singular: 'log',
-        plural: 'logs',
+        singular: 'Product',
+        plural: 'Products',
     };
     const pageOptions = [
         { label: '5', value: '5' },
@@ -33,40 +35,15 @@ function LogsTable({ filter, pricingParameter, products }) {
         { label: '50', value: '50' },
         { label: '100', value: '100' },
     ];
-    const [pageCount, setPageCount] = useState();
+    const [pageCount, setPageCount] = useState("10");
     const [tableRows, setTableRows] = useState([]);
     const formatCurrency = (amount, currency) => (
         <b style={{ fontWeight: '900', fontSize: '14px' }}>{parseFloat(amount).toFixed(2)} {currency}</b>
     );
-    const showStatus = (status) => <b style={{ fontWeight: '900', fontSize: '14px', color: status === 'active' ? 'green' : 'red'}}>{status}</b>;
-    const mapProductToTableRow = (product, pricingParameter) => ({
-        id: product.id,
-        name: product.name,
-        code: product.code,
-        brand: product.brand,
-        category: product.category,
-        subcategory: product.sub_category,
-        qty: product.qty,
-        unitcost: formatCurrency(product.unit_cost_eur, 'EUR'),
-        unitcostUSD: formatCurrency(product.unit_cost_usd, 'USD'),
-        unitcostEGP: formatCurrency(product.unit_cost_egp, 'EGP'),
-        costofKGUSD: formatCurrency(pricingParameter.cost_of_kg, 'USD'),
-        costofgmUSD: formatCurrency(product.cost_of_gram_usd, 'USD'),
-        unitweightGR: formatCurrency(product.unit_weight_gram, 'gm'),
-        unitcostIncludingweightUSD: formatCurrency(product.unit_cost_with_weight_cost_usd, 'USD'),
-        unitcostIncludingweightEGP: formatCurrency(product.unit_cost_with_weight_cost_egp, 'EGP'),
-        grossmargin: formatCurrency(pricingParameter.gross_margin , '%'),
-        finalprice: formatCurrency(product.final_price_egp, 'EGP'),
-        status: showStatus(product.status)
-    });
-    useEffect(() => {
-        const mappedRows = products.map((product) => mapProductToTableRow(product, pricingParameter));
-        setTableRows(mappedRows);
-    }, [products, pricingParameter]);
+    const showStatus = (status) => <b style={{ fontWeight: '900', fontSize: '14px', color: status === 'active' ? 'green' : 'red' }}>{status}</b>;
     const [selected, setSelected] = useState(0);
     const [itemStrings, setItemStrings] = useState([
         'All',
-        'New',
         'Active',
         'Draft',
     ]);
@@ -79,15 +56,15 @@ function LogsTable({ filter, pricingParameter, products }) {
         actions: []
     }));
     const sortOptions = [
-        { label: 'Id', value: 'id asc', directionLabel: 'Ascending' },
-        { label: 'Id', value: 'id desc', directionLabel: 'Descending' },
+        { label: 'Id', value: 'id ASC', directionLabel: 'Ascending' },
+        { label: 'Id', value: 'id DESC', directionLabel: 'Descending' },
     ];
-    const [sortSelected, setSortSelected] = useState(['id desc']);
+    const [sortSelected, setSortSelected] = useState(['id ASC']);
     const [queryValue, setQueryValue] = useState("");
     const { mode, setMode } = useSetIndexFiltersMode();
     const onHandleCancel = () => { };
     const [pagination, setPagination] = useState({
-        path: route("ic_logs.list"),
+        path: route("products.list"),
         next_cursor: null,
         next_page_url: null,
         prev_cursor: null,
@@ -99,12 +76,50 @@ function LogsTable({ filter, pricingParameter, products }) {
     const [reload, setReload] = useState(false);
     const { selectedResources, allResourcesSelected, handleSelectionChange } = useIndexResourceState(tableRows);
     const handlePageCount = useCallback((value) => { setPageCount(value); setCurrentCursor(null); setReload(!reload); }, [tableRows]);
+    const handleRefresh = () => {
+        setPagination({
+            path: route("products.list"),
+            next_cursor: null,
+            next_page_url: null,
+            prev_cursor: null,
+            prev_page_url: null,
+        })
+        setPageCount("10");
+        setCurrentCursor(null);
+        setSortSelected(['id ASC'])
+        setQueryValue('')
+        setSelected(0)
+        setReload(!reload);
+    }
     useEffect(() => {
         let url = new URL(pagination.path);
+        url.searchParams.set('embedded', query.embedded);
+        url.searchParams.set('host', query.host);
+        url.searchParams.set('id_token', query.id_token);
+        url.searchParams.set('shop', query.shop);
+        url.searchParams.set('token', query.token);
         url.searchParams.set('page_count', pageCount);
         if (currentCursor) {
             url.searchParams.set('cursor', currentCursor);
         }
+        if (filter.trace == 'Active') {
+            setSelected(1)
+        }
+
+        if (filter.trace == 'Draft') {
+            setSelected(2)
+        }
+        if (selected == 0) {
+            url.searchParams.delete('trace')
+        }
+        else if (selected == 1) {
+            url.searchParams.set('trace', 'Active')
+        }
+        else if (selected == 2) {
+            url.searchParams.set('trace', 'Draft')
+        }
+
+
         if (sortSelected != "") {
             url.searchParams.set('sort', sortSelected[0])
         } else {
@@ -123,21 +138,29 @@ function LogsTable({ filter, pricingParameter, products }) {
             .then((result) => {
                 if (result.success == true) {
                     const my_rows = [];
-                    result.data.data.forEach((log, index) => {
+                    result.data.data.forEach((product, index) => {
+                        console.log(product)
                         my_rows.push(
                             {
-                                id: log.id,
-                                created_at: new Date(log.created_at).toLocaleString(),
-                                store: log.user?.store_name ? log?.user?.store_name : log?.user?.name,
-                                type: <div style={{ textTransform: 'capitalize' }} >{log.type == "error" ?
-                                    <div className='errorBadgeCust'><Badge tone="critical"> {log.type} </Badge></div> : log.type == "info" ? <div className='infoBadgeCust'><Badge tone="info"> {log.type} </Badge ></div> : log.type == "success" ? <div className='sucessBadgeCust'><Badge tone="success" > {log.type} </Badge> </div> : ""
-                                }</div>,
-                                priority: <div className={log.priority ? 'errorBadgeCust' : 'badgeWarning'}><Badge> {log.priority ? 'High' : 'Low'} </Badge></div>,
-                                loggable_type: <div style={{ textTransform: 'capitalize' }} >{log.loggable_type == "App\\Models\\InConnect\\InconnectAccount" ?
-                                    <div className='tagsAccCust'><Tag > Account </Tag> </div> : log.loggable_type == "App\\Models\\InConnect\\InconnectOrder" ? <div className='tagsOrderCust'><Tag> Order </Tag ></div > : log.loggable_type == "App\\Models\\InConnect\\Vendor" ? <div className='tagsVendorCust'> <Tag tone="success" > Vendor </Tag> </div> : log.loggable_type == "App\\Models\\InConnect\\Decorator" ? <div className='tagsDecoratorCust'> <Tag tone="success" > Decorator </Tag> </div> : ""
-                                }</div>,
-                                loggable_id: log.loggable_id,
-                                description: log.description
+                                id: product.id,
+                                name: product.name,
+                                code: product.variants[0].code,
+                                brand: product.brand,
+                                category: product.category,
+                                subcategory: product.sub_category,
+                                qty: product.count,
+                                unitcost: formatCurrency(product.variants[0].unit_cost_eur, 'EUR'),
+                                unitcostUSD: formatCurrency(product.variants[0].unit_cost_usd, 'USD'),
+                                unitcostEGP: formatCurrency(product.variants[0].unit_cost_egp, 'EGP'),
+                                costofKGUSD: formatCurrency(pricingParameter.cost_of_kg, 'USD'),
+                                costofgmUSD: formatCurrency(product.variants[0].cost_of_gram_usd, 'USD'),
+                                unitweightGR: formatCurrency(product.variants[0].unit_weight_gram, 'gm'),
+                                unitcostIncludingweightUSD: formatCurrency(product.variants[0].unit_cost_with_weight_cost_usd, 'USD'),
+                                unitcostIncludingweightEGP: formatCurrency(product.variants[0].unit_cost_with_weight_cost_egp, 'EGP'),
+                                grossmargin: formatCurrency(pricingParameter.gross_margin, '%'),
+                                finalprice: formatCurrency(product.variants[0].final_price_egp, 'EGP'),
+                                status: showStatus(product.status),
+                                variants_count: product.variants_count
                             }
                         );
                     });
@@ -180,12 +203,13 @@ function LogsTable({ filter, pricingParameter, products }) {
     ]);
     const filters = [];
     const appliedFilters = [];
-    const rowMarkup = tableRows.map(({ id, name, code, status, brand, category, subcategory, qty, unitcost, unitcostUSD, unitcostEGP, costofKGUSD, costofgmUSD, unitweightGR, unitcostIncludingweightUSD, unitcostIncludingweightEGP, grossmargin, finalprice },) => (
+    const rowMarkup = tableRows.map(({ id, name, code, status, brand, category, subcategory, qty, unitcost, unitcostUSD, unitcostEGP, costofKGUSD, costofgmUSD, unitweightGR, unitcostIncludingweightUSD, unitcostIncludingweightEGP, grossmargin, finalprice,variants_count },) => (
         <IndexTable.Row id={id} key={id}>
             <IndexTable.Cell>{id}</IndexTable.Cell>
             <IndexTable.Cell>{name}</IndexTable.Cell>
             <IndexTable.Cell>{code}</IndexTable.Cell>
             <IndexTable.Cell>{status}</IndexTable.Cell>
+            <IndexTable.Cell>{variants_count}</IndexTable.Cell>
             <IndexTable.Cell>{brand}</IndexTable.Cell>
             <IndexTable.Cell>{category}</IndexTable.Cell>
             <IndexTable.Cell>{subcategory}</IndexTable.Cell>
@@ -202,7 +226,6 @@ function LogsTable({ filter, pricingParameter, products }) {
             <IndexTable.Cell>{finalprice}</IndexTable.Cell>
         </IndexTable.Row>
     ));
-    const [active, setActive] = useState(false);
     const [firstRun, setFirstRun] = useState(true);
     useEffect(() => {
         if (!firstRun) {
@@ -211,6 +234,40 @@ function LogsTable({ filter, pricingParameter, products }) {
         }
         setFirstRun(false);
     }, [selected])
+    const handleSync = async() => {
+        const promise = new Promise((resolve, reject) => {
+            setTimeout(async () => {
+                await fetch(route('sync-produccts', query), {
+                    method: 'GET',
+                })
+                    .then(async (response) => {
+                        var results = await response.json()
+                        setActivemodal(false)
+                        resolve(results);
+                    })
+                    .catch(reject);
+            }, 2000);
+        });
+        toast.promise(
+            promise,
+            {
+                loading: 'Updating.......',
+                success: (data) => `Successfully ${data.message}`,
+                error: (err) => `This just happened: ${err.toString()}`,
+            },
+            {
+                style: {
+                    minWidth: '250px',
+                },
+                success: {
+                    duration: 5000,
+                },
+                error: {
+                    duration: 5000,
+                },
+            }
+        )
+    }
     // Modal popup
     const [activemodal, setActivemodal] = useState(false);
     const buttonRef = useRef(null);
@@ -224,30 +281,52 @@ function LogsTable({ filter, pricingParameter, products }) {
         (valuecostkg) => setTextFieldValuecostkg(valuecostkg),
         [],
     );
-    const handleFormSubmit = async() => {
+    const handleFormSubmit =  () => {
         const data = {
             cost_of_kg: textFieldValuecostkg,
             gross_margin: textFieldValuegrossmargin,
             bm_egp_markup: textFieldValueblackmarket
         };
-        console.log(data)
-        let response = await fetch(route('submit-pricing', query), {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
+        const promise = new Promise((resolve, reject) => {
+            setTimeout(async () => {
+                await fetch(route('submit-pricing', query), {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then(async (response) => {
+                        var results = await response.json()
+                        setActivemodal(false)
+                        resolve(results);
+                    })
+                    .catch(reject);
+            }, 2000);
+        });
+        toast.promise(
+            promise,
+            {
+                loading: 'Updating.......',
+                success: (data) => `Successfully ${data.message}`,
+                error: (err) => `This just happened: ${err.toString()}`,
             },
-            body: JSON.stringify(data),
+            {
+                style: {
+                    minWidth: '250px',
+                },
+                success: {
+                    duration: 5000,
+                },
+                error: {
+                    duration: 5000,
+                },
+            }
+        ).then(() => {
         })
-        response = await response.json();
-        // if (response.success) {
-        //     Swal.fire({
-        //         title: 'Success!',
-        //         icon: 'success',
-        //         text: response.message,
-        //         showConfirmButton: false,
-        //         timer: 1500
-        //     });
-        // }
+            .catch((error) => {
+                console.error("An error occurred:", error);
+            });
     }
     // second Gross Margin
     const [textFieldValuegrossmargin, setTextFieldValuegrossmargin] = useState(pricingParameter.gross_margin);
@@ -265,11 +344,17 @@ function LogsTable({ filter, pricingParameter, products }) {
     //
     return (
         <div>
+            <Toaster position="top-right" reverseOrder={false} />
             <Grid>
                 <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 12, lg: 12, xl: 12 }}>
                     <div style={{ display: "flex", justifyContent: 'end' }}>
                         <div style={{ display: "flex", marginRight: '1rem' }}>
-                            <Button className="session-token" icon={RefreshIcon}>
+                            <Button onClick={handleRefresh} className="session-token" icon={RefreshIcon}>
+                                Refresh
+                            </Button>
+                        </div>
+                        <div style={{ display: "flex", marginRight: '1rem' }}>
+                            <Button onClick={handleSync} className="session-token" icon={RefreshIcon}>
                                 Sync
                             </Button>
                         </div>
@@ -321,7 +406,8 @@ function LogsTable({ filter, pricingParameter, products }) {
                                 { title: 'id' },
                                 { title: 'Name' },
                                 { title: 'Code' },
-                                { title: 'status' },
+                                { title: 'Status' },
+                                { title: 'Variants Count' },
                                 { title: 'Brand' },
                                 { title: 'Category' },
                                 { title: 'Subcategory' },
@@ -377,6 +463,8 @@ function LogsTable({ filter, pricingParameter, products }) {
 
 
                     </div>
+
+
                 </Grid.Cell>
             </Grid>
 
