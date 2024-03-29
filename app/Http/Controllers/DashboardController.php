@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Product;
 use App\Jobs\SyncProductJob;
@@ -36,31 +37,33 @@ class DashboardController extends Controller
     }
     public function productsList(Request $request)
     {
-        $products = Product::with(['variants' => function ($query) {
-            $query->where('position', 1);
-        }])->when($request->get('q'), function ($q) use ($request) {
+        $products = Product::with([
+            'variants' => function ($query) {
+                $query->where('position', 1);
+            }
+        ])->when($request->get('q'), function ($q) use ($request) {
             $q->where('name', 'like', '%' . request()->get('q') . '%');
         })->when($request->get('sort'), function ($q) use ($request) {
             $q->orderBy(...explode(' ', $request->get('sort')));
         })->when($request->get('trace'), function ($q) use ($request) {
-            if($request->trace == 'Active'){
+            if ($request->trace == 'Active') {
                 $q->where('status', 'active');
             }
-            if($request->trace == 'Draft'){
+            if ($request->trace == 'Draft') {
                 $q->where('status', 'draft');
             }
         })
-        ->select('products.*', \DB::raw('(SELECT SUM(qty) FROM product_variants WHERE product_id = products.id) AS count'))
-        ->select('products.*', \DB::raw('(SELECT COUNT(*) FROM product_variants WHERE product_id = products.id) AS variants_count'))
-        ->cursorPaginate($request->page_count);
+            ->select('products.*', \DB::raw('(SELECT SUM(qty) FROM product_variants WHERE product_id = products.id) AS count'))
+            ->select('products.*', \DB::raw('(SELECT COUNT(*) FROM product_variants WHERE product_id = products.id) AS variants_count'))
+            ->cursorPaginate($request->page_count);
         return responseJson(true, 'products retrieved successfully!', $products);
     }
 
     public function submitPricing(Request $request)
     {
         $user = Auth::user();
-        $pricing = PricingParameter::where('user_id', $user->id)->first();
-        $pricing->update($request->all());
+        $pricingParameters = PricingParameter::where('user_id', $user->id)->first();
+        $pricingParameters->update($request->all());
         $products = Product::where('user_id', $user->id)->get();
         $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=EUR&symbols=USD');
         $rates = $rates->json();
@@ -69,7 +72,15 @@ class DashboardController extends Controller
         $rates = $rates->json();
         $egpRate = $rates['rates']['EGP'];
         foreach ($products as $product) {
-            UpdateDatabaseJob::dispatch($user, $product, $usdRate, $egpRate);
+            foreach ($product->variants as $variant) {
+                $variant->unit_cost_eur = $variant->original_price;
+                $variant->unit_cost_usd = $variant->original_price * $usdRate;
+                $variant->unit_cost_egp = ($variant->unit_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
+                $variant->unit_cost_with_weight_cost_usd = $variant->unit_cost_usd + ($variant->cost_of_gram_usd * $variant->unit_weight_gram);
+                $variant->unit_cost_with_weight_cost_egp = ($variant->unit_cost_with_weight_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
+                $variant->final_price_egp = round((($variant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $variant->unit_cost_with_weight_cost_egp, 3);
+                $variant->save();
+            }
         }
         return sendResponse(true, 'Updated.');
     }
@@ -93,6 +104,24 @@ class DashboardController extends Controller
             SyncProductJob::dispatch($product, $user);
         }
         Product::where('user_id', $user->id)->update(['status' => 'active']);
+        return sendResponse(true, 'Synced.');
+    }
+    public function syncLatestPrice()
+    {
+        $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=EUR&symbols=USD');
+        $rates = $rates->json();
+        $usdRate = $rates['rates']['USD'];
+        $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=USD&symbols=EGP');
+        $rates = $rates->json();
+        $egpRate = $rates['rates']['EGP'];
+        $pricing_parameters = PricingParameter::all();
+        foreach ($pricing_parameters as $pricing_parameter) {
+            $products = Product::where('user_id', $pricing_parameter->user_id)->get();
+            foreach ($products as $product) {
+                $user = User::where('id', $product->user_id)->first();
+                UpdateDatabaseJob::dispatch($user, $product, $usdRate, $egpRate);
+            }
+        }
         return sendResponse(true, 'Synced.');
     }
 }

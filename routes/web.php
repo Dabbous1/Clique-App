@@ -19,7 +19,7 @@ use Shopify\Clients\Graphql;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+Route::get('/sync-latest-price' , [DashboardController::class, 'syncLatestPrice'])->name('sync-latest-price');
 Route::group(['middleware' => ['verify.embedded', 'verify.shopify']], function () {
     // Route::get('/', function () {
     //     //testing

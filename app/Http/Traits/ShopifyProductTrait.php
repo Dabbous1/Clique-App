@@ -2,6 +2,7 @@
 
 namespace App\Http\Traits;
 
+use App\Jobs\SyncProductJob;
 use Exception;
 use App\Models\User;
 use GuzzleHttp\Client;
@@ -161,7 +162,7 @@ trait ShopifyProductTrait
         $product_id = $product['id'];
         $method = 'PUT';
         $url = '/admin/api/2023-10/products/' . $product_id . '.json';
-        $product['variants'] = $product['variants']->toArray();
+        $product['variants'] = is_array($product['variants']) ? $product['variants'] : $product['variants']->toArray();
         try {
             $response = $user->api()->rest($method, $url, [
                 'product' => $product
@@ -243,5 +244,16 @@ trait ShopifyProductTrait
             $variant->final_price_egp = round((($variant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $variant->unit_cost_with_weight_cost_egp , 3);
             $variant->save();
         }
+        $product = [
+            'id' => $product->shopify_id,
+            'status' => 'active',
+            'variants' => $product->variants->map(function ($variant) {
+                return [
+                    'id' => $variant->shopify_id,
+                    'price' => $variant->final_price_egp
+                ];
+            })->toArray()
+        ];
+        SyncProductJob::dispatch($product, $user);
     }
 }

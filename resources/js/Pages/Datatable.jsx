@@ -37,10 +37,16 @@ function LogsTable({ filter , pricingParameter}) {
     ];
     const [pageCount, setPageCount] = useState("10");
     const [tableRows, setTableRows] = useState([]);
+    const capitalize =(str)=>{
+        return str.charAt(0).toUpperCase() + str.slice(1);
+        }
     const formatCurrency = (amount, currency) => (
-        <span style={{ fontSize: '14px' }}>{parseFloat(amount).toFixed(2)} <b>{currency}</b></span>
+        <span style={{ fontSize: '14px' }}>{currencyFormat(parseFloat(amount))} <b>{currency}</b></span>
     );
-    const showStatus = (status) => <b style={{ fontWeight: '900', fontSize: '14px', color: status === 'active' ? 'green' : 'red' }}>{status}</b>;
+    const currencyFormat = (num) => {
+        return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+     }
+    const showStatus = (status) => <b style={{ fontWeight: '900', fontSize: '14px', color: status === 'active' ? 'green' : 'red' }}>{capitalize(status)}</b>;
     const [selected, setSelected] = useState(0);
     const [itemStrings, setItemStrings] = useState([
         'All',
