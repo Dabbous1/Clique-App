@@ -38,7 +38,7 @@ function LogsTable({ filter , pricingParameter}) {
     const [pageCount, setPageCount] = useState("10");
     const [tableRows, setTableRows] = useState([]);
     const formatCurrency = (amount, currency) => (
-        <b style={{ fontWeight: '900', fontSize: '14px' }}>{parseFloat(amount).toFixed(2)} {currency}</b>
+        <span style={{ fontSize: '14px' }}>{parseFloat(amount).toFixed(2)} <b>{currency}</b></span>
     );
     const showStatus = (status) => <b style={{ fontWeight: '900', fontSize: '14px', color: status === 'active' ? 'green' : 'red' }}>{status}</b>;
     const [selected, setSelected] = useState(0);
@@ -158,7 +158,7 @@ function LogsTable({ filter , pricingParameter}) {
                                 unitcostIncludingweightUSD: formatCurrency(product.variants[0].unit_cost_with_weight_cost_usd, 'USD'),
                                 unitcostIncludingweightEGP: formatCurrency(product.variants[0].unit_cost_with_weight_cost_egp, 'EGP'),
                                 grossmargin: formatCurrency(pricingParameter.gross_margin, '%'),
-                                finalprice: formatCurrency(product.variants[0].final_price_egp, 'EGP'),
+                                finalprice: <b>{formatCurrency(product.variants[0].final_price_egp, 'EGP')}</b>,
                                 status: showStatus(product.status),
                                 variants_count: product.variants_count
                             }
@@ -266,7 +266,11 @@ function LogsTable({ filter , pricingParameter}) {
                     duration: 5000,
                 },
             }
-        )
+        ).then(() => {
+            handleRefresh()
+        }).catch((error) => {
+            console.error("An error occurred:", error);
+        });
     }
     // Modal popup
     const [activemodal, setActivemodal] = useState(false);
@@ -323,6 +327,7 @@ function LogsTable({ filter , pricingParameter}) {
                 },
             }
         ).then(() => {
+            handleRefresh()
         })
             .catch((error) => {
                 console.error("An error occurred:", error);

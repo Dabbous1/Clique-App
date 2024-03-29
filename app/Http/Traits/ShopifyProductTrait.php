@@ -51,7 +51,7 @@ trait ShopifyProductTrait
                 $dbVariant->unit_cost_egp = ($dbVariant->unit_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
                 $dbVariant->unit_cost_with_weight_cost_usd = $dbVariant->unit_cost_usd + ($dbVariant->cost_of_gram_usd * $dbVariant->unit_weight_gram);
                 $dbVariant->unit_cost_with_weight_cost_egp = ($dbVariant->unit_cost_with_weight_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
-                $dbVariant->final_price_egp = (($dbVariant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $dbVariant->unit_cost_with_weight_cost_egp;
+                $dbVariant->final_price_egp = round((($dbVariant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $dbVariant->unit_cost_with_weight_cost_egp ,  3);
                 $dbVariant->save();
                 $user->synced = true;
                 $user->save();
@@ -65,38 +65,37 @@ trait ShopifyProductTrait
         $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=EUR&symbols=USD');
         $rates = $rates->json();
         $usdRate = $rates['rates']['USD'];
-        $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=EUR&symbols=EGP');
+        $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=USD&symbols=EGP');
         $rates = $rates->json();
-        $eurRate = 1 / $usdRate;
-        $egpRate = $eurRate * $rates['rates']['EGP'];
+        $egpRate = $rates['rates']['EGP'];
         $pricingParameters = PricingParameter::where('user_id' , $user->id)->first();
         $dbProduct = null;
         $is_gift_card = false;
-        foreach ($product['variants'] as $line_item) {
-            if ($line_item['fulfillment_service'] == 'gift_card') {
+        foreach ($product->variants as $line_item) {
+            if ($line_item->fulfillment_service == 'gift_card') {
                 $is_gift_card = true;
             }
         }
         if (!$is_gift_card) {
             DB::beginTransaction();
             $dbProduct = Product::updateOrCreate([
-                'shopify_id' => $product['id'],
+                'shopify_id' => $product->id,
                 'user_id' => $user->id,
             ], [
-                'status' => $product['status'],
-                'name' => $product['title'],
-                'brand' => $product['vendor'],
-                'category' => $product['product_type'],
+                'status' => $product->status,
+                'name' => $product->title,
+                'brand' => $product->vendor,
+                'category' => $product->product_type,
             ]);
-            foreach ($product['variants'] as $variant) {
+            foreach ($product->variants as $variant) {
                 $dbVariant = $dbProduct->variants()->updateOrCreate([
-                    'shopify_id' => $variant['id'],
+                    'shopify_id' => $variant->id,
                 ], [
-                    'weight' => $variant['weight'],
-                    'code' => $variant['sku'],
-                    'position' => $variant['position'],
-                    'qty' => $variant['inventory_quantity'],
-                    'unit_weight_gram' => $variant['grams'],
+                    'weight' => $variant->weight,
+                    'code' => $variant->sku,
+                    'position' => $variant->position,
+                    'qty' => $variant->inventory_quantity,
+                    'unit_weight_gram' => $variant->grams,
                     'cost_of_gram_usd' => ($pricingParameters->cost_of_kg / 1000),
                 ]);
                 $dbVariant->unit_cost_eur = $dbVariant->original_price;
@@ -104,7 +103,7 @@ trait ShopifyProductTrait
                 $dbVariant->unit_cost_egp = ($dbVariant->unit_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
                 $dbVariant->unit_cost_with_weight_cost_usd = $dbVariant->unit_cost_usd + ($dbVariant->cost_of_gram_usd * $dbVariant->unit_weight_gram);
                 $dbVariant->unit_cost_with_weight_cost_egp = ($dbVariant->unit_cost_with_weight_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
-                $dbVariant->final_price_egp = (($dbVariant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $dbVariant->unit_cost_with_weight_cost_egp;
+                $dbVariant->final_price_egp = round((($dbVariant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $dbVariant->unit_cost_with_weight_cost_egp , 3);
                 $dbVariant->save();
             }
             DB::commit();
@@ -215,10 +214,9 @@ trait ShopifyProductTrait
                     $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=EUR&symbols=USD');
                     $rates = $rates->json();
                     $usdRate = $rates['rates']['USD'];
-                    $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=EUR&symbols=EGP');
+                    $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=USD&symbols=EGP');
                     $rates = $rates->json();
-                    $eurRate = 1 / $usdRate;
-                    $egpRate = $eurRate * $rates['rates']['EGP'];
+                    $egpRate = $rates['rates']['EGP'];
                     foreach ($response['body']['products'] as $product) {
                         GetProductJob::dispatch($user, $product, $usdRate, $egpRate);
                     }
@@ -233,7 +231,7 @@ trait ShopifyProductTrait
             logger()->info(json_encode($e->getMessage()));
         }
     }
-    public function updateDatabase($user, $product, $usdRate, $egpRate)
+    public function updateDatabase($product, $user, $usdRate, $egpRate)
     {
         $pricingParameters = PricingParameter::where('user_id' , $user->id)->first();
         foreach ($product->variants as $variant) {
@@ -242,7 +240,7 @@ trait ShopifyProductTrait
             $variant->unit_cost_egp = ($variant->unit_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
             $variant->unit_cost_with_weight_cost_usd = $variant->unit_cost_usd + ($variant->cost_of_gram_usd * $variant->unit_weight_gram);
             $variant->unit_cost_with_weight_cost_egp = ($variant->unit_cost_with_weight_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
-            $variant->final_price_egp = (($variant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $variant->unit_cost_with_weight_cost_egp;
+            $variant->final_price_egp = round((($variant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $variant->unit_cost_with_weight_cost_egp , 3);
             $variant->save();
         }
     }

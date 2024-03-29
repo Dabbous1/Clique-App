@@ -11,6 +11,11 @@ class PricingParameter extends Model
     protected $fillable = [
         'cost_of_kg',
         'gross_margin',
-        'bm_egp_markup'
+        'bm_egp_markup',
+        'user_id'
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

@@ -49,4 +49,8 @@ class User extends Authenticatable implements IShopModel
     {
         return $this->hasMany(Product::class);
     }
+    public function pricingParameter()
+    {
+        return $this->hasOne(PricingParameter::class);
+    }
 }
