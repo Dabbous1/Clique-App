@@ -367,6 +367,18 @@ return [
             'topic' => env('SHOPIFY_WEBHOOK_7_TOPIC', ''),
             'address' => env('SHOPIFY_WEBHOOK_7_ADDRESS', ''),
         ],
+        [
+            'topic' => env('SHOPIFY_WEBHOOK_8_TOPIC', ''),
+            'address' => env('SHOPIFY_WEBHOOK_8_ADDRESS', ''),
+        ],
+        [
+            'topic' => env('SHOPIFY_WEBHOOK_9_TOPIC', ''),
+            'address' => env('SHOPIFY_WEBHOOK_9_ADDRESS', ''),
+        ],
+        [
+            'topic' => env('SHOPIFY_WEBHOOK_10_TOPIC', ''),
+            'address' => env('SHOPIFY_WEBHOOK_10_ADDRESS', ''),
+        ],
     ],
 
     /*
