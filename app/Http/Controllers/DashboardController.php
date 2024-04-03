@@ -37,7 +37,7 @@ class DashboardController extends Controller
     }
     public function productsList(Request $request)
     {
-        $products = Product::with([
+        $products = auth()->user()->products()->with([
             'variants' => function ($query) {
                 $query->where('position', 1);
             }
