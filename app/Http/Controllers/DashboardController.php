@@ -53,8 +53,7 @@ class DashboardController extends Controller
                 $q->where('status', 'draft');
             }
         })
-            ->select('products.*', \DB::raw('(SELECT SUM(qty) FROM product_variants WHERE product_id = products.id) AS count'))
-            ->select('products.*', \DB::raw('(SELECT COUNT(*) FROM product_variants WHERE product_id = products.id) AS variants_count'))
+            ->select('products.*', \DB::raw('(SELECT SUM(qty) FROM product_variants WHERE product_id = products.id) AS count'), \DB::raw('(SELECT COUNT(*) FROM product_variants WHERE product_id = products.id) AS variants_count'))
             ->cursorPaginate($request->page_count);
         return responseJson(true, 'products retrieved successfully!', $products);
     }

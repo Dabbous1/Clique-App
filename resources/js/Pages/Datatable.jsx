@@ -153,7 +153,6 @@ function LogsTable({ filter , pricingParameter}) {
                                 code: product.variants[0].code,
                                 brand: product.brand,
                                 category: product.category,
-                                subcategory: product.sub_category,
                                 qty: product.count,
                                 unitcost: formatCurrency(product.variants[0].unit_cost_eur, 'EUR'),
                                 unitcostUSD: formatCurrency(product.variants[0].unit_cost_usd, 'USD'),
@@ -209,7 +208,7 @@ function LogsTable({ filter , pricingParameter}) {
     ]);
     const filters = [];
     const appliedFilters = [];
-    const rowMarkup = tableRows.map(({ id, name, code, status, brand, category, subcategory, qty, unitcost, unitcostUSD, unitcostEGP, costofKGUSD, costofgmUSD, unitweightGR, unitcostIncludingweightUSD, unitcostIncludingweightEGP, grossmargin, finalprice,variants_count },) => (
+    const rowMarkup = tableRows.map(({ id, name, code, status, brand, category, qty, unitcost, unitcostUSD, unitcostEGP, costofKGUSD, costofgmUSD, unitweightGR, unitcostIncludingweightUSD, unitcostIncludingweightEGP, grossmargin, finalprice,variants_count },) => (
         <IndexTable.Row id={id} key={id}>
             <IndexTable.Cell>{id}</IndexTable.Cell>
             <IndexTable.Cell>{name}</IndexTable.Cell>
@@ -218,7 +217,6 @@ function LogsTable({ filter , pricingParameter}) {
             <IndexTable.Cell>{variants_count}</IndexTable.Cell>
             <IndexTable.Cell>{brand}</IndexTable.Cell>
             <IndexTable.Cell>{category}</IndexTable.Cell>
-            <IndexTable.Cell>{subcategory}</IndexTable.Cell>
             <IndexTable.Cell>{qty}</IndexTable.Cell>
             <IndexTable.Cell>{unitcost}</IndexTable.Cell>
             <IndexTable.Cell>{unitcostUSD}</IndexTable.Cell>
@@ -421,7 +419,6 @@ function LogsTable({ filter , pricingParameter}) {
                                 { title: 'Variants Count' },
                                 { title: 'Brand' },
                                 { title: 'Category' },
-                                { title: 'Subcategory' },
                                 { title: 'QTY' },
                                 { title: 'Unit Cost EUR' },
                                 { title: 'Unit Cost USD' },
