@@ -39,7 +39,11 @@ class DashboardController extends Controller
     {
         $products = auth()->user()->products()->with([
             'variants' => function ($query) {
-                $query->where('position', 1);
+                $query->where('position', 1)->orWhereNotExists(function ($subQuery) {
+                    $subQuery->from('product_variants as pv')
+                        ->whereColumn('pv.product_id', 'product_variants.product_id')
+                        ->where('pv.position', '<', \DB::raw('product_variants.position'));
+                });
             }
         ])->when($request->get('q'), function ($q) use ($request) {
             $q->where('name', 'like', '%' . request()->get('q') . '%');
