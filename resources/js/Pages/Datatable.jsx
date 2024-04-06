@@ -44,7 +44,7 @@ function LogsTable({ filter , pricingParameter}) {
         <span style={{ fontSize: '14px' }}>{currencyFormat(parseFloat(amount))} <b>{currency}</b></span>
     );
     const currencyFormat = (num) => {
-        return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+        return num.toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
      }
     const showStatus = (status) => <b style={{ fontWeight: '900', fontSize: '14px', color: status === 'active' ? 'green' : 'red' }}>{capitalize(status)}</b>;
     const [selected, setSelected] = useState(0);
