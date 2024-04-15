@@ -40,11 +40,11 @@ function LogsTable({ filter , pricingParameter}) {
     const capitalize =(str)=>{
         return str.charAt(0).toUpperCase() + str.slice(1);
         }
-    const formatCurrency = (amount, currency, deci = 3) => (
-        <span style={{ fontSize: '14px' }}>{currencyFormat(parseFloat(amount), deci)} <b>{currency}</b></span>
+    const formatCurrency = (amount, currency) => (
+        <span style={{ fontSize: '14px' }}>{currencyFormat(parseFloat(amount))} <b>{currency}</b></span>
     );
-    const currencyFormat = (num, deci) => {
-        return num.toFixed(deci).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    const currencyFormat = (num) => {
+        return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
      }
     const showStatus = (status) => <b style={{ fontWeight: '900', fontSize: '14px', color: status === 'active' ? 'green' : 'red' }}>{capitalize(status)}</b>;
     const [selected, setSelected] = useState(0);
@@ -162,7 +162,7 @@ function LogsTable({ filter , pricingParameter}) {
                                 unitweightGR: formatCurrency(product.variants[0].unit_weight_gram, 'gm'),
                                 unitcostIncludingweightUSD: formatCurrency(product.variants[0].unit_cost_with_weight_cost_usd, 'USD'),
                                 unitcostIncludingweightEGP: formatCurrency(product.variants[0].unit_cost_with_weight_cost_egp, 'EGP'),
-                                grossmargin: formatCurrency(pricingParameter.gross_margin, '%', 2),
+                                grossmargin: formatCurrency(pricingParameter.gross_margin, '%'),
                                 finalprice: <b>{formatCurrency(product.variants[0].final_price_egp, 'EGP')}</b>,
                                 status: showStatus(product.status),
                                 variants_count: product.variants_count
