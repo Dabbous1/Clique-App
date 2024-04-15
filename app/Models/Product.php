@@ -30,4 +30,10 @@ class Product extends Model
     {
         return $this->hasMany(ProductVariant::class);
     }
+    public static function boot(){
+        parent::boot();
+        self::deleting(function ($model) {
+            $model->variants()->delete();
+        });
+    }
 }
