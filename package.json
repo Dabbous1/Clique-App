@@ -28,6 +28,7 @@
         "@shopify/polaris": "latest",
         "@shopify/polaris-icons": "latest",
         "query-string": "^9.0.0",
+        "react-confirm-alert": "^3.0.6",
         "react-hot-toast": "^2.4.1"
     }
 }

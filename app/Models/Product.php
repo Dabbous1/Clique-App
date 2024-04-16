@@ -28,12 +28,12 @@ class Product extends Model
     }
     public function variants()
     {
-        return $this->hasMany(ProductVariant::class);
+        return $this->hasMany(ProductVariant::class, 'product_id', 'id');
     }
-    public static function boot(){
+    protected static function boot(){
         parent::boot();
-        self::deleting(function ($model) {
-            $model->variants()->delete();
+        static::deleting(function ($product) {
+            $product->variants->each->delete();
         });
     }
 }

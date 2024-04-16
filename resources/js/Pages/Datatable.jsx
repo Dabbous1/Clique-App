@@ -20,6 +20,8 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import { CalendarViewMonthSharp, Sync } from '@mui/icons-material';
 import toast, { Toaster } from 'react-hot-toast';
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
 function LogsTable({ filter , pricingParameter}) {
     const page = usePage().props;
     const { query } = page.ziggy;
@@ -238,7 +240,8 @@ function LogsTable({ filter , pricingParameter}) {
         }
         setFirstRun(false);
     }, [selected])
-    const handleSync = async() => {
+
+    const confirmSync = async() => {
         const promise = new Promise((resolve, reject) => {
             setTimeout(async () => {
                 await fetch(route('sync-produccts', query), {
@@ -276,6 +279,23 @@ function LogsTable({ filter , pricingParameter}) {
             console.error("An error occurred:", error);
         });
     }
+    const handleSync = () => {
+        console.log('confirm')
+        confirmAlert({
+            title: "Confirm to Sync",
+            message: "Are you sure to do this.",
+            buttons: [
+              {
+                label: "Yes",
+                onClick: () => confirmSync()
+              },
+              {
+                label: "No"
+              }
+            ]
+        });
+    }
+
     // Modal popup
     const [activemodal, setActivemodal] = useState(false);
     const buttonRef = useRef(null);
