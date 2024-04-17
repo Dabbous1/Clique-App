@@ -20,6 +20,7 @@ class Product extends Model
         'brand',
         'category',
         'sub_category',
+        'tag'
     ];
 
     public function user()

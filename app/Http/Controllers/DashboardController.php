@@ -22,8 +22,10 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         if (!$user->synced) {
-            PricingParameter::create([
+            PricingParameter::updateOrCreate([
                 'user_id' => $user->id,
+            ]
+            ,[
                 'cost_of_kg' => 25.56,
                 'gross_margin' => 25,
                 'bm_egp_markup' => 5,
@@ -55,6 +57,9 @@ class DashboardController extends Controller
             }
             if ($request->trace == 'Draft') {
                 $q->where('status', 'draft');
+            }
+            if ($request->trace == 'Archived') {
+                $q->where('status', 'archived');
             }
         })
             ->select('products.*', \DB::raw('(SELECT SUM(qty) FROM product_variants WHERE product_id = products.id) AS count'), \DB::raw('(SELECT COUNT(*) FROM product_variants WHERE product_id = products.id) AS variants_count'))
@@ -94,7 +99,7 @@ class DashboardController extends Controller
         $products = $products->map(function ($product) {
             return [
                 'id' => $product->shopify_id,
-                'status' => 'active',
+                'status' => $product->tag === null && $product->status != 'archived' ? 'active' : $product->status,
                 'variants' => $product->variants->map(function ($variant) {
                     return [
                         'id' => $variant->shopify_id,
@@ -105,8 +110,8 @@ class DashboardController extends Controller
         });
         foreach ($products as $product) {
             SyncProductJob::dispatch($product, $user);
+            Product::where('user_id', $user->id)->where('shopify_id', $product['id'])->update(['status' => $product['status'], 'tag' => $product['status']]);
         }
-        Product::where('user_id', $user->id)->update(['status' => 'active']);
         return sendResponse(true, 'Synced.');
     }
     public function syncLatestPrice()

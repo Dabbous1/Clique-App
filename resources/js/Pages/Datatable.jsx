@@ -48,12 +48,13 @@ function LogsTable({ filter , pricingParameter}) {
     const currencyFormat = (num) => {
         return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
      }
-    const showStatus = (status) => <b style={{ fontWeight: '900', fontSize: '14px', color: status === 'active' ? 'green' : 'red' }}>{capitalize(status)}</b>;
+    const showStatus = (status) => <b style={{ fontWeight: '900', fontSize: '14px', color: status === 'active' ? 'green' : status === 'draft' ? 'red' : 'blue' }}>{capitalize(status)}</b>;
     const [selected, setSelected] = useState(0);
     const [itemStrings, setItemStrings] = useState([
         'All',
         'Active',
         'Draft',
+        'Archived'
     ]);
     const tabs = itemStrings.map((item, index) => ({
         content: item,
@@ -113,9 +114,11 @@ function LogsTable({ filter , pricingParameter}) {
         if (filter.trace == 'Active') {
             setSelected(1)
         }
-
         if (filter.trace == 'Draft') {
             setSelected(2)
+        }
+        if (filter.trace == 'Archived') {
+            setSelected(3)
         }
         if (selected == 0) {
             url.searchParams.delete('trace')
@@ -125,6 +128,9 @@ function LogsTable({ filter , pricingParameter}) {
         }
         else if (selected == 2) {
             url.searchParams.set('trace', 'Draft')
+        }
+        else if (selected == 3) {
+            url.searchParams.set('trace', 'Archived')
         }
 
 
@@ -283,7 +289,7 @@ function LogsTable({ filter , pricingParameter}) {
         console.log('confirm')
         confirmAlert({
             title: "Confirm to Sync",
-            message: "Are you sure to do this.",
+            message: "Are you sure you want to do this?",
             buttons: [
               {
                 label: "Yes",

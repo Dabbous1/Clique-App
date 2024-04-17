@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Collection;
 use App\Models\CollectionProduct;
+use App\Models\PricingParameter;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
@@ -72,6 +73,7 @@ class AppUninstalledJob extends \Osiset\ShopifyApp\Messaging\Jobs\AppUninstalled
             foreach ($products as $product) {
                 $product->delete();
             }
+            PricingParameter::where('user_id', $user->id)->delete();
             $user->synced = 0;
             $user->save();
             //DELETING COMMANDS

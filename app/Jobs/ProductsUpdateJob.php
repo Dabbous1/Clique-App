@@ -69,7 +69,7 @@ class ProductsUpdateJob implements ShouldQueue
         $shop = $shopQuery->getByDomain($this->domain);
         $payload = $this->data;
         $user = User::where('name', $shop->name)->first();
-        // $this->syncWithDatabase($user, $payload);
+        $this->updateWithDatabase($user, $payload);
         return true;
     }
 }
