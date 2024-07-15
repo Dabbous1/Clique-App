@@ -370,7 +370,7 @@ function LogsTable({ filter , pricingParameter}) {
         [],
     );
     // Third
-    const [textFieldValueblackmarket, setTextFieldValueblackmarket] = useState(pricingParameter.bm_egp_markup);
+    const [textFieldValueblackmarket, setTextFieldValueblackmarket] = useState(pricingParameter?.bm_egp_markup?pricingParameter?.bm_egp_markup:0);
     const handleTextFieldChangeblackmarket = useCallback(
         (valueblackmarket) => setTextFieldValueblackmarket(valueblackmarket),
         [],
