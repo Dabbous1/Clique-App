@@ -62,11 +62,15 @@ class ProductsDeleteJob implements ShouldQueue
      */
     public function handle(IShopCommand $shopCommand, IShopQuery $shopQuery, CancelCurrentPlan $cancelCurrentPlanAction): bool
     {
+        Log::info('Product Deleted Webhook Called : ');
+
         $this->domain = ShopDomain::fromNative($this->domain);
         $shop = $shopQuery->getByDomain($this->domain);
         $shopId = $shop->getId();
         $deletion_object = $this->data;
-        Product::where('shopify_id', $deletion_object->id)->delete();
+
+        $is_deleted = Product::where('shopify_id', $deletion_object->id)->delete();
+        Log::info('Product Deleted: ' . $is_deleted);
         ProductVariant::where('shopify_id', $deletion_object->id)->delete();
         return true;
     }
