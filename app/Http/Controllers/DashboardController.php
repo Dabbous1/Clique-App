@@ -21,7 +21,6 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        dd('DashboardController@index is called.');
         Log::info('DashboardController@index is called.');
         // $user->api()->rest('POST', '/admin/api/2024-01/webhooks.json', [
         //     'webhook' => [
