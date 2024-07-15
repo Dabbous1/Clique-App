@@ -21,6 +21,19 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+
+        $user->api()->rest('POST', '/admin/api/2023-10/webhooks.json', [
+            'webhook' => [
+                'topic' => 'products/update',
+                'format' => 'json',
+                'address' => 'https://phpstack-1296962-4714452.cloudwaysapps.com/webhook/products-update'
+            ]
+        ]);
+        
+        $response = $user->api()->rest('get', '/admin/api/2023-04/webhooks.json', []);
+
+        Log::info(json_encode($response, JSON_PRETTY_PRINT));
+
         if (!$user->synced) {
             PricingParameter::updateOrCreate([
                 'user_id' => $user->id,

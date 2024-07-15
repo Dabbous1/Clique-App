@@ -19,14 +19,14 @@ use Shopify\Clients\Graphql;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/sync-latest-price' , [DashboardController::class, 'syncLatestPrice'])->name('sync-latest-price');
+Route::get('/sync-latest-price', [DashboardController::class, 'syncLatestPrice'])->name('sync-latest-price');
 Route::group(['middleware' => ['verify.embedded', 'verify.shopify']], function () {
     // Route::get('/', function () {
     //     //testing
-        // $shop = Auth::user();
-        // $request = $shop->api()->rest('GET', '/admin/api/2023-04/products.json' , ['query' => "status=draft"]);
+    // $shop = Auth::user();
+    // $request = $shop->api()->rest('GET', '/admin/api/2023-04/products.json' , ['query' => "status=draft"]);
     //     // $price = $request['body']['container']['products'][0]['variants'][0]['price'];
-        // dd($request['body']['container']['products'][0]);
+    // dd($request['body']['container']['products'][0]);
     //     // $productId = $request['body']['container']['products'][0]['id'];
     //     // $request = $shop->api()->rest('PUT', '/admin/api/2023-04/products/'.$productId.'.json' , ['json' => ['product' => ['status' => 'active' ]]]);
     //     // dd($request);
@@ -43,7 +43,7 @@ Route::group(['middleware' => ['verify.embedded', 'verify.shopify']], function (
 
     Route::get('/', [DashboardController::class, 'index'])->name('home');
     Route::post('submit-pricing', [DashboardController::class, 'submitPricing'])->name('submit-pricing');
-    Route::get('sync-produccts' , [DashboardController::class, 'syncProducts'])->name('sync-produccts');
+    Route::get('sync-produccts', [DashboardController::class, 'syncProducts'])->name('sync-produccts');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
