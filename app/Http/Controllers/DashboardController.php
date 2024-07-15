@@ -30,9 +30,9 @@ class DashboardController extends Controller
         //     ]
         // ]);
         
-        // $response = $user->api()->rest('get', '/admin/api/2023-04/webhooks.json', []);
+        $response = $user->api()->rest('get', '/admin/api/2023-04/webhooks.json', []);
 
-        // Log::info(json_encode($response, JSON_PRETTY_PRINT));
+        Log::info(json_encode($response, JSON_PRETTY_PRINT));
 
         if (!$user->synced) {
             PricingParameter::updateOrCreate([
