@@ -170,7 +170,7 @@ function LogsTable({ filter , pricingParameter}) {
                                 unitweightGR: formatCurrency(product.variants[0].unit_weight_gram, 'gm'),
                                 unitcostIncludingweightUSD: formatCurrency(product.variants[0].unit_cost_with_weight_cost_usd, 'USD'),
                                 unitcostIncludingweightEGP: formatCurrency(product.variants[0].unit_cost_with_weight_cost_egp, 'EGP'),
-                                grossmargin: formatCurrency(pricingParameter.gross_margin, '%'),
+                                grossmargin: formatCurrency(pricingParameter?.gross_margin, '%'),
                                 finalprice: <b>{formatCurrency(product.variants[0].final_price_egp, 'EGP')}</b>,
                                 status: showStatus(product.status),
                                 variants_count: product.variants_count
@@ -364,7 +364,7 @@ function LogsTable({ filter , pricingParameter}) {
             });
     }
     // second Gross Margin
-    const [textFieldValuegrossmargin, setTextFieldValuegrossmargin] = useState(pricingParameter.gross_margin);
+    const [textFieldValuegrossmargin, setTextFieldValuegrossmargin] = useState(pricingParameter?.gross_margin);
     const handleTextFieldChangegrossmargin = useCallback(
         (valuegrossmargin) => setTextFieldValuegrossmargin(valuegrossmargin),
         [],
