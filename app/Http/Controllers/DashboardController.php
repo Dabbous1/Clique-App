@@ -22,7 +22,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // $user->api()->rest('POST', '/admin/api/2023-10/webhooks.json', [
+        // $user->api()->rest('POST', '/admin/api/2024-01/webhooks.json', [
         //     'webhook' => [
         //         'topic' => 'products/delete',
         //         'format' => 'json',
@@ -30,7 +30,7 @@ class DashboardController extends Controller
         //     ]
         // ]);
 
-        // $response = $user->api()->rest('get', '/admin/api/2023-04/webhooks.json', []);
+        // $response = $user->api()->rest('get', '/admin/api/2024-01/webhooks.json', []);
 
         // Log::info(json_encode($response, JSON_PRETTY_PRINT));
 
@@ -48,7 +48,7 @@ class DashboardController extends Controller
             );
             $this->fetchProducts($user);
         }
-        $response = $user->api()->rest('get', '/admin/api/2023-04/webhooks.json', []);
+        $response = $user->api()->rest('get', '/admin/api/2024-01/webhooks.json', []);
         $pricingParameter = PricingParameter::where('user_id', $user->id)->first();
         $filter = $request->all();
         return Inertia::render('Dashboard', compact(['response', 'user', 'pricingParameter', 'filter']));

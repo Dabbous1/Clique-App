@@ -24,11 +24,11 @@ Route::group(['middleware' => ['verify.embedded', 'verify.shopify']], function (
     // Route::get('/', function () {
     //     //testing
     // $shop = Auth::user();
-    // $request = $shop->api()->rest('GET', '/admin/api/2023-04/products.json' , ['query' => "status=draft"]);
+    // $request = $shop->api()->rest('GET', '/admin/api/2024-01/products.json' , ['query' => "status=draft"]);
     //     // $price = $request['body']['container']['products'][0]['variants'][0]['price'];
     // dd($request['body']['container']['products'][0]);
     //     // $productId = $request['body']['container']['products'][0]['id'];
-    //     // $request = $shop->api()->rest('PUT', '/admin/api/2023-04/products/'.$productId.'.json' , ['json' => ['product' => ['status' => 'active' ]]]);
+    //     // $request = $shop->api()->rest('PUT', '/admin/api/2024-01/products/'.$productId.'.json' , ['json' => ['product' => ['status' => 'active' ]]]);
     //     // dd($request);
     //     // $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=EUR&symbols=EGP');
     //     // $rates = $rates->json();
@@ -36,7 +36,7 @@ Route::group(['middleware' => ['verify.embedded', 'verify.shopify']], function (
     //     //testing
 
     //     // $user = Auth::user();
-    //     // $response = $user->api()->rest('get', '/admin/api/2023-04/webhooks.json', []);
+    //     // $response = $user->api()->rest('get', '/admin/api/2024-01/webhooks.json', []);
 
     //     return Inertia::render('Dashboard', compact('response'));
     // })->name('home');

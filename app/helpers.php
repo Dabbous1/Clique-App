@@ -68,7 +68,7 @@ if (!function_exists('sync_products')) {
             // Log::info(json_encode($user));
 
             $perPage = 250;
-            $response1 = $user->api()->rest('GET', '/admin/api/2023-04/products/count.json');
+            $response1 = $user->api()->rest('GET', '/admin/api/2024-01/products/count.json');
 
             if ($response1['errors'] == false) {
 
@@ -79,7 +79,7 @@ if (!function_exists('sync_products')) {
                 $next = null;
 
                 for ($i = 0; $i < $iterations; $i++) {
-                    $response5 = $user->api()->rest('GET', '/admin/api/2023-04/products.json', [
+                    $response5 = $user->api()->rest('GET', '/admin/api/2024-01/products.json', [
                         'limit' => $perPage,
                         'page_info' => $next
                     ]);
@@ -166,7 +166,7 @@ if (!function_exists('sync_products')) {
                 $smart_collections = array();
                 $custom_collections = array();
 
-                $response2 = $user->api()->rest('get', '/admin/api/2023-04/smart_collections.json');
+                $response2 = $user->api()->rest('get', '/admin/api/2024-01/smart_collections.json');
                 if ($response2['errors'] == false) {
 
                     // Log::info(json_encode("SMART COLLECTION" . $response2['errors']));
@@ -182,7 +182,7 @@ if (!function_exists('sync_products')) {
                     return true;
                 }
 
-                $response3 = $user->api()->rest('get', '/admin/api/2023-04/custom_collections.json');
+                $response3 = $user->api()->rest('get', '/admin/api/2024-01/custom_collections.json');
                 if ($response3['errors'] == false) {
 
                     // Log::info(json_encode("CUSTOM COLLECTION" . $response3['errors']));
@@ -219,7 +219,7 @@ if (!function_exists('sync_products')) {
 
                 // $nextThree = null;
                 // do {
-                //     $response11 = $user->api()->rest('GET', '/admin/api/2023-04/collections/289322369220/products.json', [
+                //     $response11 = $user->api()->rest('GET', '/admin/api/2024-01/collections/289322369220/products.json', [
                 //         'limit' => 250,
                 //         'page_info' => $nextThree
                 //     ]);
@@ -242,7 +242,7 @@ if (!function_exists('sync_products')) {
                     $nextThree = null;
                     do {
 
-                        $response11 = $user->api()->rest('GET', '/admin/api/2023-04/collections/' . $value['id'] . '/products.json', [
+                        $response11 = $user->api()->rest('GET', '/admin/api/2024-01/collections/' . $value['id'] . '/products.json', [
                             'limit' => 250,
                             'page_info' => $nextThree
                         ]);
@@ -294,7 +294,7 @@ if (!function_exists('sync_products')) {
                     $nextThree = null;
                     do {
 
-                        $response12 = $user->api()->rest('GET', '/admin/api/2023-04/collections/' . $value['id'] . '/products.json', [
+                        $response12 = $user->api()->rest('GET', '/admin/api/2024-01/collections/' . $value['id'] . '/products.json', [
                             'limit' => 250,
                             'page_info' => $nextThree
                         ]);
@@ -369,7 +369,7 @@ if (!function_exists('sync_orders')) {
         // Log::info(json_encode($user));
 
         $perPage = 250;
-        $response6 = $user->api()->rest('GET', '/admin/api/2023-04/orders/count.json', [
+        $response6 = $user->api()->rest('GET', '/admin/api/2024-01/orders/count.json', [
             'orders' => [
                 'status' => 'any'
             ]
@@ -390,7 +390,7 @@ if (!function_exists('sync_orders')) {
             $next = null;
 
             for ($i = 0; $i < $iterations; $i++) {
-                $response7 = $user->api()->rest('GET', '/admin/api/2023-04/orders.json', [
+                $response7 = $user->api()->rest('GET', '/admin/api/2024-01/orders.json', [
                     'status' => 'any',
                     'limit' => $perPage,
                     'page_info' => $next,
@@ -425,7 +425,7 @@ if (!function_exists('sync_orders')) {
                             ]
                         );
 
-                        $response8 = $user->api()->rest('GET', '/admin/api/2023-04/orders/' . $order->id . '/refunds.json');
+                        $response8 = $user->api()->rest('GET', '/admin/api/2024-01/orders/' . $order->id . '/refunds.json');
 
                         if ($response8['errors'] == false) {
 

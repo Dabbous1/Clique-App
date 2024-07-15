@@ -161,7 +161,7 @@ trait ShopifyProductTrait
     {
         $product_id = $product['id'];
         $method = 'PUT';
-        $url = '/admin/api/2023-10/products/' . $product_id . '.json';
+        $url = '/admin/api/2024-01/products/' . $product_id . '.json';
         $product['variants'] = is_array($product['variants']) ? $product['variants'] : $product['variants']->toArray();
         try {
             $response = $user->api()->rest($method, $url, [
@@ -178,7 +178,7 @@ trait ShopifyProductTrait
     // {
     //     $user = $product->user;
     //     $method = 'DELETE';
-    //     $url = '/admin/api/2023-10/products/' . $product->product_id . '.json';
+    //     $url = '/admin/api/2024-01/products/' . $product->product_id . '.json';
 
     //     try {
     //         $response = $user->api()->rest($method, $url);
@@ -194,7 +194,7 @@ trait ShopifyProductTrait
     public function fetchProducts($user)
     {
         $perPage = 250;
-        $productCountResponse = $user->api()->rest('GET', '/admin/api/2023-10/products/count.json');
+        $productCountResponse = $user->api()->rest('GET', '/admin/api/2024-01/products/count.json');
         if ($productCountResponse['errors']) {
             return Log::error("Product Count Error Body: " . $productCountResponse['body']);
         }
@@ -204,7 +204,7 @@ trait ShopifyProductTrait
         $next = null;
         try {
             for ($i = 0; $i < $iterations; $i++) {
-                $response = $user->api()->rest('GET', '/admin/api/2023-10/products.json', [
+                $response = $user->api()->rest('GET', '/admin/api/2024-01/products.json', [
                     'limit' => $perPage,
                     'page_info' => $next
                 ]);
