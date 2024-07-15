@@ -46,7 +46,7 @@ class DashboardController extends Controller
         //             'bm_egp_markup' => 5,
         //         ]
         //     );
-        $this->fetchProducts($user);
+        //$this->fetchProducts($user);
         //}
         $response = $user->api()->rest('get', '/admin/api/2024-01/webhooks.json', []);
         $pricingParameter = PricingParameter::where('user_id', $user->id)->first();
