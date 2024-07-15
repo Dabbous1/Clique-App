@@ -65,15 +65,19 @@ class ProductsCreateJob implements ShouldQueue
      */
     public function handle(IShopCommand $shopCommand, IShopQuery $shopQuery, CancelCurrentPlan $cancelCurrentPlanAction): bool
     {
+        Log::info('ProductsCreateJob is called.');
         $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=EUR&symbols=USD');
         $rates = $rates->json();
+        Log::info($rates);
         $usdRate = $rates['rates']['USD'];
         $rates = Http::get('http://data.fixer.io/api/latest?access_key=42e27abfba793b7bd010a85b484d8dce&base=USD&symbols=EGP');
         $rates = $rates->json();
+        Log::info($rates);
         $egpRate = $rates['rates']['EGP'];
         $this->domain = ShopDomain::fromNative($this->domain);
         $shop = $shopQuery->getByDomain($this->domain);
         $payload = $this->data;
+        Log::info($payload.' Payload');
         $user = User::where('name', $shop->name)->first();
         $this->storeWithDatabase($user, json_decode(json_encode($payload), true), $usdRate, $egpRate);
         return true;
