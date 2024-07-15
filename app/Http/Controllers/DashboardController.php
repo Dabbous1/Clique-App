@@ -24,7 +24,7 @@ class DashboardController extends Controller
 
         $user->api()->rest('POST', '/admin/api/2023-10/webhooks.json', [
             'webhook' => [
-                'topic' => 'products/create',
+                'topic' => 'products/delete',
                 'format' => 'json',
                 'address' => 'https://phpstack-1296962-4714452.cloudwaysapps.com/webhook/products-update'
             ]
