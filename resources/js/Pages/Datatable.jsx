@@ -234,7 +234,7 @@ function LogsTable({ filter , pricingParameter}) {
             <IndexTable.Cell>{unitweightGR}</IndexTable.Cell>
             <IndexTable.Cell>{unitcostIncludingweightUSD}</IndexTable.Cell>
             <IndexTable.Cell>{unitcostIncludingweightEGP}</IndexTable.Cell>
-            <IndexTable.Cell>{grossmargin}</IndexTable.Cell>
+            <IndexTable.Cell>{grossmargin?grossmargin:0}</IndexTable.Cell>
             <IndexTable.Cell>{finalprice}</IndexTable.Cell>
         </IndexTable.Row>
     ));
