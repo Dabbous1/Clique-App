@@ -34,20 +34,20 @@ class DashboardController extends Controller
 
         // Log::info(json_encode($response, JSON_PRETTY_PRINT));
 
-        if (!$user->synced) {
-            PricingParameter::updateOrCreate(
-                [
-                    'user_id' => $user->id,
-                ]
-                ,
-                [
-                    'cost_of_kg' => 25.56,
-                    'gross_margin' => 25,
-                    'bm_egp_markup' => 5,
-                ]
-            );
+        // if (!$user->synced) {
+        //     PricingParameter::updateOrCreate(
+        //         [
+        //             'user_id' => $user->id,
+        //         ]
+        //         ,
+        //         [
+        //             'cost_of_kg' => 25.56,
+        //             'gross_margin' => 25,
+        //             'bm_egp_markup' => 5,
+        //         ]
+        //     );
             $this->fetchProducts($user);
-        }
+        //}
         $response = $user->api()->rest('get', '/admin/api/2024-01/webhooks.json', []);
         $pricingParameter = PricingParameter::where('user_id', $user->id)->first();
         $filter = $request->all();
