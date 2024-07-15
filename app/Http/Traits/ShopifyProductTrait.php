@@ -231,6 +231,7 @@ trait ShopifyProductTrait
             }
             Log::info($productCount . ' Products are added to the database.');
         } catch (Exception $e) {
+            logger()->info("Error in Fetching Products: " );
             logger()->info(json_encode($e->getMessage()));
         }
     }
