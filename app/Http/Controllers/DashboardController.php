@@ -22,17 +22,17 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        $user->api()->rest('POST', '/admin/api/2023-10/webhooks.json', [
-            'webhook' => [
-                'topic' => 'products/delete',
-                'format' => 'json',
-                'address' => 'https://phpstack-1296962-4714452.cloudwaysapps.com/webhook/products-update'
-            ]
-        ]);
+        // $user->api()->rest('POST', '/admin/api/2023-10/webhooks.json', [
+        //     'webhook' => [
+        //         'topic' => 'products/delete',
+        //         'format' => 'json',
+        //         'address' => 'https://phpstack-1296962-4714452.cloudwaysapps.com/webhook/products-update'
+        //     ]
+        // ]);
         
-        $response = $user->api()->rest('get', '/admin/api/2023-04/webhooks.json', []);
+        // $response = $user->api()->rest('get', '/admin/api/2023-04/webhooks.json', []);
 
-        Log::info(json_encode($response, JSON_PRETTY_PRINT));
+        // Log::info(json_encode($response, JSON_PRETTY_PRINT));
 
         if (!$user->synced) {
             PricingParameter::updateOrCreate([
