@@ -30,9 +30,9 @@ class DashboardController extends Controller
         //     ]
         // ]);
 
-        // $response = $user->api()->rest('get', '/admin/api/2024-01/webhooks.json', []);
+        $response = $user->api()->rest('get', '/admin/api/2024-01/webhooks.json', []);
 
-        // Log::info(json_encode($response, JSON_PRETTY_PRINT));
+        Log::info(json_encode($response, JSON_PRETTY_PRINT));
 
         // if (!$user->synced) {
         //     PricingParameter::updateOrCreate(
@@ -46,11 +46,14 @@ class DashboardController extends Controller
         //             'bm_egp_markup' => 5,
         //         ]
         //     );
-        //$this->fetchProducts($user);
+        $this->fetchProducts($user);
         //}
-        $response = $user->api()->rest('get', '/admin/api/2024-01/webhooks.json', []);
+        // $response = $user->api()->rest('get', '/admin/api/2024-01/webhooks.json', []);
+
         $pricingParameter = PricingParameter::where('user_id', $user->id)->first();
+        
         $filter = $request->all();
+        
         return Inertia::render('Dashboard', compact(['response', 'user', 'pricingParameter', 'filter']));
     }
     public function productsList(Request $request)

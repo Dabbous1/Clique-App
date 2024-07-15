@@ -193,6 +193,8 @@ trait ShopifyProductTrait
     // }
     public function fetchProducts($user)
     {
+        
+        Log::info("Product fetch Called ... " );
         $perPage = 250;
         $productCountResponse = $user->api()->rest('GET', '/admin/api/2024-01/products/count.json');
         if ($productCountResponse['errors']) {
