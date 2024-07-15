@@ -47,7 +47,7 @@ trait ShopifyProductTrait
                     'unit_cost_eur' => $variant['price'],
                     'unit_cost_usd' => $variant['price'] * $usdRate,
                     'unit_weight_gram' => $variant['grams'],
-                    'cost_of_gram_usd' => ($pricingParameters->cost_of_kg / 1000),
+                    'cost_of_gram_usd' => isset($pricingParameters->cost_of_kg) ? ($pricingParameters->cost_of_kg / 1000): 0,
                 ]);
                 $dbVariant->unit_cost_egp = ($dbVariant->unit_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
                 $dbVariant->unit_cost_with_weight_cost_usd = $dbVariant->unit_cost_usd + ($dbVariant->cost_of_gram_usd * $dbVariant->unit_weight_gram);
