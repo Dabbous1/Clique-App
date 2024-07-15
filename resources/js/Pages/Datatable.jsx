@@ -165,7 +165,7 @@ function LogsTable({ filter , pricingParameter}) {
                                 unitcost: formatCurrency(product.variants[0].unit_cost_eur, 'EUR'),
                                 unitcostUSD: formatCurrency(product.variants[0].unit_cost_usd, 'USD'),
                                 unitcostEGP: formatCurrency(product.variants[0].unit_cost_egp, 'EGP'),
-                                costofKGUSD: formatCurrency(pricingParameter.cost_of_kg, 'USD'),
+                                costofKGUSD: formatCurrency(pricingParameter?.cost_of_kg, 'USD'),
                                 costofgmUSD: formatCurrency(product.variants[0].cost_of_gram_usd, 'USD'),
                                 unitweightGR: formatCurrency(product.variants[0].unit_weight_gram, 'gm'),
                                 unitcostIncludingweightUSD: formatCurrency(product.variants[0].unit_cost_with_weight_cost_usd, 'USD'),
@@ -310,7 +310,7 @@ function LogsTable({ filter , pricingParameter}) {
         setActivemodal(false);
     }, []);
     // Modal data
-    const [textFieldValuecostkg, setTextFieldValuecostkg] = useState(pricingParameter.cost_of_kg);
+    const [textFieldValuecostkg, setTextFieldValuecostkg] = useState(pricingParameter?.cost_of_kg);
     const handleTextFieldChangecostkg = useCallback(
         (valuecostkg) => setTextFieldValuecostkg(valuecostkg),
         [],
