@@ -52,7 +52,7 @@ trait ShopifyProductTrait
                 $dbVariant->unit_cost_egp = ($dbVariant->unit_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
                 $dbVariant->unit_cost_with_weight_cost_usd = $dbVariant->unit_cost_usd + ($dbVariant->cost_of_gram_usd * $dbVariant->unit_weight_gram);
                 $dbVariant->unit_cost_with_weight_cost_egp = ($dbVariant->unit_cost_with_weight_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
-                $dbVariant->final_price_egp = round((($dbVariant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $dbVariant->unit_cost_with_weight_cost_egp ,  3);
+                $dbVariant->final_price_egp = isset($pricingParameters->gross_margin) ?  round((($dbVariant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $dbVariant->unit_cost_with_weight_cost_egp ,  3) : $dbVariant->unit_cost_with_weight_cost_egp ;
                 $dbVariant->save();
                 $user->synced = true;
                 $user->save();
@@ -243,7 +243,7 @@ trait ShopifyProductTrait
             $variant->unit_cost_egp = ($variant->unit_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
             $variant->unit_cost_with_weight_cost_usd = $variant->unit_cost_usd + ($variant->cost_of_gram_usd * $variant->unit_weight_gram);
             $variant->unit_cost_with_weight_cost_egp = ($variant->unit_cost_with_weight_cost_usd * $egpRate) + $pricingParameters->bm_egp_markup;
-            $variant->final_price_egp = round((($variant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $variant->unit_cost_with_weight_cost_egp , 3);
+            $variant->final_price_egp = isset($pricingParameters->gross_margin) ?  round((($variant->unit_cost_with_weight_cost_egp * $pricingParameters->gross_margin) / 100) + $variant->unit_cost_with_weight_cost_egp , 3) : $variant->unit_cost_with_weight_cost_egp ;
             $variant->save();
         }
         $product = [
